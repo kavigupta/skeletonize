@@ -1,6 +1,11 @@
+import random
 import unittest
 
-from skeletonize.parser import SkeletonParser
+from skeletonize.parser import (
+    SkeletonParser,
+    TooLongDelimiterException,
+    ExtraDelimiterException,
+)
 from skeletonize.skeleton import Skeleton, Blank, Given
 
 
@@ -20,8 +25,52 @@ class ParserTest(unittest.TestCase):
             Skeleton([Blank("multi\nline")]),
         )
         self.assertEqual(
-            SkeletonParser(end="}}}").parse("<<<customizable}}}"),
+            SkeletonParser(start_char="*", end_char="}").parse("***customizable}}}"),
             Skeleton([Blank("customizable")]),
+        )
+
+        self.assertEqual(
+            SkeletonParser(number_to_match=4).parse("<<<<customizable length>>>>"),
+            Skeleton([Blank("customizable length")]),
+        )
+
+    def test_too_long(self):
+        self.assertRaises(
+            TooLongDelimiterException, lambda: SkeletonParser().parse("<<<<>>>>")
+        )
+        self.assertRaises(
+            TooLongDelimiterException,
+            lambda: SkeletonParser().parse("<<<<<<'nested block'>>>>>>"),
+        )
+        self.assertRaises(
+            TooLongDelimiterException,
+            lambda: SkeletonParser().parse(
+                "<<<<which way is this extra one grouped?>>>"
+            ),
+        )
+        self.assertRaises(
+            TooLongDelimiterException, lambda: SkeletonParser().parse("unmatched <<<<"),
+        )
+
+    def test_unmatched(self):
+        self.assertRaises(
+            ExtraDelimiterException,
+            lambda: SkeletonParser().parse("<<<hi>>> <<<unmatched"),
+        )
+        self.assertRaises(
+            ExtraDelimiterException,
+            lambda: SkeletonParser().parse("<<<hi>>> unmatched>>>"),
+        )
+        self.assertRaises(
+            ExtraDelimiterException,
+            lambda: SkeletonParser().parse("<<<hi unmatched <<< inside>>>"),
+        )
+
+        self.assertRaises(
+            ExtraDelimiterException,
+            lambda: SkeletonParser().parse(
+                "<<<nested <<< delimiters >>> don't work >>>"
+            ),
         )
 
     def test_no_skeleton(self):
@@ -63,3 +112,16 @@ class ParserTest(unittest.TestCase):
             SkeletonParser().parse("<<<adjacent>>><<<blanks>>>"),
             Skeleton([Blank("adjacent"), Blank("blanks")]),
         )
+
+    def fuzz_test(self):
+        items = "x", " ", "<", "<<", "<<<", ">", ">", ">>>"
+        for _ in range(1000):
+            length = random.randint(0, 10)
+            string = "".join(random.choice(items) for _ in range(length))
+
+            try:
+                SkeletonParser().parse(string)
+            except TooLongDelimiterException:
+                pass
+            except ExtraDelimiterException:
+                pass
