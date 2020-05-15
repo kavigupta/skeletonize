@@ -1,5 +1,5 @@
 import re
-from functools import cached_property
+from cached_property import cached_property
 
 from skeletonize.skeleton import Given, Skeleton, Blank
 
