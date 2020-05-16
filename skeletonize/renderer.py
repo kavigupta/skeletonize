@@ -30,10 +30,11 @@ class UnderscoreBlankRenderer(SkeletonRenderer):
     def render_given(self, given):
         return given.code
 
+
 @attr.s
 class DisplaySolutionsRenderer(SkeletonRenderer):
-    start = attr.ib(default='<<<')
-    end = attr.ib(default='>>>')
+    start = attr.ib(default="<<<")
+    end = attr.ib(default=">>>")
 
     def combine(self, per_segment_outputs):
         return "".join(per_segment_outputs)
