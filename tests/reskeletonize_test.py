@@ -45,6 +45,36 @@ class RegexReskeletonizerTest(unittest.TestCase):
             lambda: self.parse_skeleton("x     =    lambda y, z: y * z", skeleton_code),
         )
 
+        # quotation
+        self.assertEqual(
+            self.parse_skeleton(".x.", ".<<<between dots>>>."   ),
+            ".<<<x>>>."
+        )
+
+        self.assertRaises(
+            CannotReskeletonizeException,
+            lambda: self.parse_skeleton(".<<<between dots>>>.", "axa")
+        )
+
+    def parenthesized_reskeleton_test(self):
+        skeleton_code = "<<<x>>> * <<<y>>> * <<<z>>>"
+        self.assertEqual(
+            self.parse_skeleton("a * b * c", skeleton_code),
+            "<<<a>>> * <<<b>>> * <<<c>>>",
+        )
+        self.assertEqual(
+            self.parse_skeleton("a * (b * c)", skeleton_code),
+            "<<<a>>> * <<<(b>>> * <<<c)>>>",
+        )
+        self.assertEqual(
+            self.parse_skeleton("a * b * c * d", skeleton_code),
+            "<<<a>>> * <<<b>>> * <<<c * d>>>",
+        )
+        self.assertEqual(
+            self.parse_skeleton("a + b * c * d", skeleton_code),
+            "<<<a + b>>> * <<<c>>> * <<<d>>>",
+        )
+
     def reskeleton_with_more_whitespace_test(self):
         skeleton_code = "x = lambda <<<x>>>: <<<x * 2>>>"
         self.assertEqual(
