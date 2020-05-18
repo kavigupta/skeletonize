@@ -3,16 +3,16 @@ import unittest
 from skeletonize.parser import SkeletonParser
 from skeletonize.renderer import DisplaySolutionsRenderer
 from skeletonize.reskeletonize import (
-    RegexReskeletonizer,
+    Reskeletonizer,
     CannotReskeletonizeException,
 )
 
 
-class RegexReskeletonizerTest(unittest.TestCase):
+class ReskeletonizerTest(unittest.TestCase):
     @staticmethod
     def parse_skeleton(code, skeleton_code, ignore_whitespace=False):
         return (
-            RegexReskeletonizer(ignore_whitespace=ignore_whitespace)
+            Reskeletonizer(ignore_whitespace=ignore_whitespace)
             .reskeletonize(SkeletonParser().parse(skeleton_code), code)
             .render(DisplaySolutionsRenderer())
         )
@@ -47,13 +47,12 @@ class RegexReskeletonizerTest(unittest.TestCase):
 
         # quotation
         self.assertEqual(
-            self.parse_skeleton(".x.", ".<<<between dots>>>."   ),
-            ".<<<x>>>."
+            self.parse_skeleton(".x.", ".<<<between dots>>>."), ".<<<x>>>."
         )
 
         self.assertRaises(
             CannotReskeletonizeException,
-            lambda: self.parse_skeleton(".<<<between dots>>>.", "axa")
+            lambda: self.parse_skeleton(".<<<between dots>>>.", "axa"),
         )
 
     def parenthesized_reskeleton_test(self):

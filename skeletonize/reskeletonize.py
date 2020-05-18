@@ -1,20 +1,13 @@
 import re
 import string
-from abc import abstractmethod, ABC
 
 import attr
 
-from skeletonize.skeleton import Skeleton, Blank, Given
-
-
-class Reskeletonizer(ABC):
-    @abstractmethod
-    def reskeletonize(self, skeleton: Skeleton, code: str) -> Skeleton:
-        pass
+from .skeleton import Skeleton, Blank, Given
 
 
 @attr.s
-class RegexReskeletonizer(Reskeletonizer):
+class Reskeletonizer:
     ignore_whitespace = attr.ib(default=True)
     """
     Reskeletonizer that uses character-level matching to match given portions the skeleton
