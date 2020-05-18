@@ -1,5 +1,4 @@
 import re
-import string
 
 import attr
 
@@ -8,14 +7,21 @@ from .skeleton import Skeleton, Blank, Given
 
 @attr.s
 class Reskeletonizer:
-    ignore_whitespace = attr.ib(default=True)
+    ignore_whitespace = attr.ib(default=False)
+    normalizer = attr.ib(default=None)
     """
     Reskeletonizer that uses character-level matching to match given portions the skeleton
         in the provided code, in order to find blanks.
 
     Arguments
-        ignore_whitespace: whether to ignore whitespace when resolving blanks. Default True
-        allow_errors: whether to allow deviations from the skeleton (return a ErrorBlank segments). Default True
+        ignore_whitespace: whether to ignore whitespace when resolving blanks. Default False
+        normalizer: function that parses and unparses code, to remove extraneous formatting.
+            Default is None, or no normalization. If this is used, the returned reskeletonized
+            code will correspond to the normalized code rather than the original code.
+            
+            For this to work, the blanks in the original skeleton must correspond to places an
+            identifier could be placed, syntactically. Additionally, any sequence of [a-z]*
+            must be a valid identifier for this to work.
     """
 
     def reskeletonize(self, skeleton: Skeleton, code: str) -> Skeleton:
@@ -49,11 +55,6 @@ class Reskeletonizer:
         if not self.ignore_whitespace:
             return re.escape(code)
         return r"\s+".join(re.escape(word) for word in re.split(r"\s", code))
-
-    def _is_junk(self, x):
-        if self.ignore_whitespace:
-            return x in string.whitespace
-        return False
 
 
 class CannotReskeletonizeException(Exception):
