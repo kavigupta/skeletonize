@@ -5,14 +5,15 @@ from skeletonize.renderer import DisplaySolutionsRenderer
 from skeletonize.reskeletonize import (
     Reskeletonizer,
     CannotReskeletonizeException,
+    normalize_python,
 )
 
 
 class ReskeletonizerTest(unittest.TestCase):
     @staticmethod
-    def parse_skeleton(code, skeleton_code, ignore_whitespace=False):
+    def parse_skeleton(code, skeleton_code, **kwargs):
         return (
-            Reskeletonizer(ignore_whitespace=ignore_whitespace)
+            Reskeletonizer(**kwargs)
             .reskeletonize(SkeletonParser().parse(skeleton_code), code)
             .render(DisplaySolutionsRenderer())
         )
@@ -93,4 +94,50 @@ class ReskeletonizerTest(unittest.TestCase):
                 "x     =    \nlambda y, z: y * z", skeleton_code, ignore_whitespace=True
             ),
             "x     =    \nlambda <<<y, z>>>: <<<y * z>>>",
+        )
+
+    def normalize_python_test(self):
+        self.assertEqual(normalize_python("x = 2 + (3)"), "\nx = (2 + 3)\n")
+        self.assertEqual(normalize_python("x = 2 * 3 + 4"), "\nx = ((2 * 3) + 4)\n")
+
+    def reskeleton_python_ast_test(self):
+        skeleton_code = "x = 2 + <<<three>>>"
+        self.assertEqual(
+            self.parse_skeleton(
+                "x = (2) + 3",
+                skeleton_code,
+                ignore_whitespace=True,
+                normalizer=normalize_python,
+            ),
+            "\nx = (2 + <<<3>>>)\n",
+        )
+        self.assertEqual(
+            self.parse_skeleton(
+                "x \\\n    = (2) + 3",
+                skeleton_code,
+                ignore_whitespace=True,
+                normalizer=normalize_python,
+            ),
+            "\nx = (2 + <<<3>>>)\n",
+        )
+        self.assertEqual(
+            self.parse_skeleton(
+                "# a comment\nx = (2) + 3",
+                skeleton_code,
+                ignore_whitespace=True,
+                normalizer=normalize_python,
+            ),
+            "\nx = (2 + <<<3>>>)\n",
+        )
+
+    def deformat_skeleton_and_code_test(self):
+        skeleton_code = "def f(x): # function that does some stuff\n return f (<<<x>>>)"
+        self.assertEqual(
+            self.parse_skeleton(
+                "def f          (x): return f(6)",
+                skeleton_code,
+                ignore_whitespace=True,
+                normalizer=normalize_python,
+            ),
+            "\n\ndef f(x):\n    return f(<<<6>>>)\n",
         )

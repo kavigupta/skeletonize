@@ -1,7 +1,10 @@
 import re
 
+import astunparse
+import ast
 import attr
 
+from .renderer import render_with_identifiers, parse_identifiers
 from .skeleton import Skeleton, Blank, Given
 
 
@@ -25,6 +28,12 @@ class Reskeletonizer:
     """
 
     def reskeletonize(self, skeleton: Skeleton, code: str) -> Skeleton:
+        if self.normalizer is not None:
+            code = self.normalizer(code)
+            skeleton_code, skeleton_ids = render_with_identifiers(skeleton)
+            skeleton_code = self.normalizer(skeleton_code)
+            skeleton = parse_identifiers(skeleton_code, skeleton_ids)
+
         match = self.create_regex(skeleton).match(code)
         if not match:
             raise CannotReskeletonizeException
@@ -55,6 +64,10 @@ class Reskeletonizer:
         if not self.ignore_whitespace:
             return re.escape(code)
         return r"\s+".join(re.escape(word) for word in re.split(r"\s", code))
+
+
+def normalize_python(code):
+    return astunparse.unparse(ast.parse(code, "<<code>>"))
 
 
 class CannotReskeletonizeException(Exception):
