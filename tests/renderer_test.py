@@ -89,7 +89,7 @@ class TestIdentiferRenderer(unittest.TestCase):
         )
 
     def fuzz_test(self):
-        for _ in range(100):
+        for _ in range(1000):
             components = []
             for _ in range(10):
                 items = "".join(
