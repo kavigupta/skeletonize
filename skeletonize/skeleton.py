@@ -18,6 +18,10 @@ class Segment(ABC):
     def render(self, renderer: SkeletonRenderer):
         pass
 
+    @abstractmethod
+    def matcher_regex(self, quotation):
+        pass
+
 
 @attr.s
 class Blank(Segment):
@@ -26,6 +30,9 @@ class Blank(Segment):
     def render(self, renderer: SkeletonRenderer):
         return renderer.render_blank(self)
 
+    def matcher_regex(self, quotation):
+        return r"(.*?)"
+
 
 @attr.s
 class Given(Segment):
@@ -33,3 +40,6 @@ class Given(Segment):
 
     def render(self, renderer: SkeletonRenderer):
         return renderer.render_given(self)
+
+    def matcher_regex(self, quotation):
+        return "(" + quotation(self.code) + ")"
