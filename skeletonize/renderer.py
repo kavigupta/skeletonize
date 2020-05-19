@@ -111,7 +111,11 @@ def parse_identifiers(code, identifier_to_blank):
     :param identifier_to_blank: a mapping from identifier -> Blank object
     :return: a Skeleton containing Given sections from the code and Blank sections from identifiers_for_blank
     """
-    from skeletonize.parser import SkeletonParser
+    from .parser import SkeletonParser
+    from .skeleton import Skeleton, Given
+
+    if not identifier_to_blank:
+        return Skeleton([Given(code)])
 
     pattern = re.compile(
         "|".join(re.escape(identifier) for identifier in identifier_to_blank)
