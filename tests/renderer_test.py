@@ -20,17 +20,15 @@ class UnderscoresRendererTest(unittest.TestCase):
 
     def underscores_renderer_test(self):
         self.assertEqual(
-            self.render_code("f(<<<x>>>, <<<y>>>)", UnderscoreBlankRenderer()),
+            self.render_code("f({{x}}, {{y}})", UnderscoreBlankRenderer()),
             "f(______, ______)",
         )
         self.assertEqual(
-            self.render_code(
-                "f(<<<x>>>, <<<y>>>)", UnderscoreBlankRenderer(blank_size=8)
-            ),
+            self.render_code("f({{x}}, {{y}})", UnderscoreBlankRenderer(blank_size=8)),
             "f(________, ________)",
         )
         self.assertEqual(
-            self.render_code("<<<multi line\n blank>>>", UnderscoreBlankRenderer()),
+            self.render_code("{{multi line\n blank}}", UnderscoreBlankRenderer()),
             "______",
         )
 
@@ -42,11 +40,11 @@ class DisplaySolutionsRendererTest(unittest.TestCase):
 
     def underscores_renderer_test(self):
         self.assertEqual(
-            self.render_code("a <<<b>>> c", DisplaySolutionsRenderer()), "a <<<b>>> c"
+            self.render_code("a {{b}} c", DisplaySolutionsRenderer()), "a {{b}} c"
         )
         self.assertEqual(
             self.render_code(
-                "a <<<b>>> c", DisplaySolutionsRenderer(start="!!!", end="***")
+                "a {{b}} c", DisplaySolutionsRenderer(start="!!!", end="***")
             ),
             "a !!!b*** c",
         )
@@ -54,13 +52,13 @@ class DisplaySolutionsRendererTest(unittest.TestCase):
 
 class TestIdentiferRenderer(unittest.TestCase):
     def single_variable_renderer_test(self):
-        code, ids = render_with_identifiers(SkeletonParser().parse("<<<x>>>"))
+        code, ids = render_with_identifiers(SkeletonParser().parse("{{x}}"))
         [x] = ids
         self.assertEqual(x, code)
         self.assertEqual(ids[x], Blank("x"))
 
     def multiple_variable_renderer_test(self):
-        code, ids = render_with_identifiers(SkeletonParser().parse("<<<x>>> + <<<y>>>"))
+        code, ids = render_with_identifiers(SkeletonParser().parse("{{x}} + {{y}}"))
         inverse_ids = {blank.solution: ident for ident, blank in ids.items()}
         self.assertCountEqual(inverse_ids, "xy")
         self.assertEqual(code, inverse_ids["x"] + " + " + inverse_ids["y"])
@@ -69,7 +67,7 @@ class TestIdentiferRenderer(unittest.TestCase):
         for _ in range(100):
             length = random.randint(1, 100)
             _, [ident] = render_with_identifiers(
-                SkeletonParser().parse("<<<x>>>"), identifier_length=length
+                SkeletonParser().parse("{{x}}"), identifier_length=length
             )
             self.assertRegex(ident, "^[a-z]{%s}$" % length)
 
@@ -78,7 +76,7 @@ class TestIdentiferRenderer(unittest.TestCase):
             parse_identifiers("x + y", {"x": Blank("2 + 3"), "y": Blank("-23")}).render(
                 DisplaySolutionsRenderer()
             ),
-            "<<<2 + 3>>> + <<<-23>>>",
+            "{{2 + 3}} + {{-23}}",
         )
 
         self.assertRaises(
@@ -96,13 +94,13 @@ class TestIdentiferRenderer(unittest.TestCase):
                     random.choice(string.printable)
                     for _ in range(random.randint(0, 20))
                 )
-                items = items.replace("<", "").replace(">", "")
+                items = items.replace("{", "").replace("}", "")
                 if random.randint(0, 1):
-                    items = "<<<" + items + ">>>"
+                    items = "{{" + items + "}}"
                 components.append(items)
             result = "".join(components)
             code, ids = render_with_identifiers(SkeletonParser().parse(result))
-            self.assertNotIn("<<<", code)
-            self.assertNotIn(">>>", code)
+            self.assertNotIn("{{", code)
+            self.assertNotIn("}}", code)
             code = parse_identifiers(code, ids).render(DisplaySolutionsRenderer())
             self.assertEqual(result, code)
