@@ -35,8 +35,8 @@ class UnderscoreBlankRenderer(SkeletonRenderer):
 
 @attr.s
 class DisplaySolutionsRenderer(SkeletonRenderer):
-    start = attr.ib(default="<<<")
-    end = attr.ib(default=">>>")
+    start = attr.ib(default="{{")
+    end = attr.ib(default="}}")
 
     def combine(self, per_segment_outputs):
         return "".join(per_segment_outputs)
@@ -128,7 +128,7 @@ def parse_identifiers(code, identifier_to_blank):
             raise DuplicateIdentifierException(identifier)
         used.add(identifier)
         solution = identifier_to_blank[identifier].solution
-        return "\x00" * 3 + solution + "\x01" * 3
+        return "\x00" * 2 + solution + "\x01" * 2
 
     code = pattern.sub(substitution, code)
     return SkeletonParser(start_char="\x00", end_char="\x01").parse(code)

@@ -5,7 +5,7 @@ from skeletonize.skeleton import Given, Skeleton, Blank
 
 
 class SkeletonParser:
-    def __init__(self, start_char="<", end_char=">", number_to_match=3):
+    def __init__(self, start_char="{", end_char="}", number_to_match=2):
         self.start_char = start_char
         self.end_char = end_char
         self.number_to_match = number_to_match

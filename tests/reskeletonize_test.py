@@ -19,22 +19,22 @@ class ReskeletonizerTest(unittest.TestCase):
         )
 
     def basic_reskeleton_test(self):
-        skeleton_code = "x = lambda <<<x>>>: <<<x * 2>>>"
+        skeleton_code = "x = lambda {{x}}: {{x * 2}}"
         self.assertEqual(
             self.parse_skeleton("x = lambda y: y * 2", skeleton_code),
-            "x = lambda <<<y>>>: <<<y * 2>>>",
+            "x = lambda {{y}}: {{y * 2}}",
         )
         self.assertEqual(
             self.parse_skeleton("x = lambda y:    y * 2", skeleton_code),
-            "x = lambda <<<y>>>: <<<   y * 2>>>",
+            "x = lambda {{y}}: {{   y * 2}}",
         )
         self.assertEqual(
             self.parse_skeleton("x = lambda y, z: y * z", skeleton_code),
-            "x = lambda <<<y, z>>>: <<<y * z>>>",
+            "x = lambda {{y, z}}: {{y * z}}",
         )
         self.assertEqual(
             self.parse_skeleton("x = lambda y, z: y \n* z", skeleton_code),
-            "x = lambda <<<y, z>>>: <<<y \n* z>>>",
+            "x = lambda {{y, z}}: {{y \n* z}}",
         )
         self.assertRaises(
             CannotReskeletonizeException,
@@ -47,53 +47,50 @@ class ReskeletonizerTest(unittest.TestCase):
         )
 
         # quotation
-        self.assertEqual(
-            self.parse_skeleton(".x.", ".<<<between dots>>>."), ".<<<x>>>."
-        )
+        self.assertEqual(self.parse_skeleton(".x.", ".{{between dots}}."), ".{{x}}.")
 
         self.assertRaises(
             CannotReskeletonizeException,
-            lambda: self.parse_skeleton(".<<<between dots>>>.", "axa"),
+            lambda: self.parse_skeleton(".{{between dots}}.", "axa"),
         )
 
     def parenthesized_reskeleton_test(self):
-        skeleton_code = "<<<x>>> * <<<y>>> * <<<z>>>"
+        skeleton_code = "{{x}} * {{y}} * {{z}}"
         self.assertEqual(
-            self.parse_skeleton("a * b * c", skeleton_code),
-            "<<<a>>> * <<<b>>> * <<<c>>>",
+            self.parse_skeleton("a * b * c", skeleton_code), "{{a}} * {{b}} * {{c}}",
         )
         self.assertEqual(
             self.parse_skeleton("a * (b * c)", skeleton_code),
-            "<<<a>>> * <<<(b>>> * <<<c)>>>",
+            "{{a}} * {{(b}} * {{c)}}",
         )
         self.assertEqual(
             self.parse_skeleton("a * b * c * d", skeleton_code),
-            "<<<a>>> * <<<b>>> * <<<c * d>>>",
+            "{{a}} * {{b}} * {{c * d}}",
         )
         self.assertEqual(
             self.parse_skeleton("a + b * c * d", skeleton_code),
-            "<<<a + b>>> * <<<c>>> * <<<d>>>",
+            "{{a + b}} * {{c}} * {{d}}",
         )
 
     def reskeleton_with_more_whitespace_test(self):
-        skeleton_code = "x = lambda <<<x>>>: <<<x * 2>>>"
+        skeleton_code = "x = lambda {{x}}: {{x * 2}}"
         self.assertEqual(
             self.parse_skeleton(
                 "x     =    lambda y, z: y * z", skeleton_code, ignore_whitespace=True
             ),
-            "x     =    lambda <<<y, z>>>: <<<y * z>>>",
+            "x     =    lambda {{y, z}}: {{y * z}}",
         )
         self.assertEqual(
             self.parse_skeleton(
                 "x     =    lambda y, z: y \n* z", skeleton_code, ignore_whitespace=True
             ),
-            "x     =    lambda <<<y, z>>>: <<<y \n* z>>>",
+            "x     =    lambda {{y, z}}: {{y \n* z}}",
         )
         self.assertEqual(
             self.parse_skeleton(
                 "x     =    \nlambda y, z: y * z", skeleton_code, ignore_whitespace=True
             ),
-            "x     =    \nlambda <<<y, z>>>: <<<y * z>>>",
+            "x     =    \nlambda {{y, z}}: {{y * z}}",
         )
 
     def normalize_python_test(self):
@@ -101,7 +98,7 @@ class ReskeletonizerTest(unittest.TestCase):
         self.assertEqual(normalize_python("x = 2 * 3 + 4"), "\nx = ((2 * 3) + 4)\n")
 
     def reskeleton_python_ast_test(self):
-        skeleton_code = "x = 2 + <<<three>>>"
+        skeleton_code = "x = 2 + {{three}}"
         self.assertEqual(
             self.parse_skeleton(
                 "x = (2) + 3",
@@ -109,7 +106,7 @@ class ReskeletonizerTest(unittest.TestCase):
                 ignore_whitespace=True,
                 normalizer=normalize_python,
             ),
-            "\nx = (2 + <<<3>>>)\n",
+            "\nx = (2 + {{3}})\n",
         )
         self.assertEqual(
             self.parse_skeleton(
@@ -118,7 +115,7 @@ class ReskeletonizerTest(unittest.TestCase):
                 ignore_whitespace=True,
                 normalizer=normalize_python,
             ),
-            "\nx = (2 + <<<3>>>)\n",
+            "\nx = (2 + {{3}})\n",
         )
         self.assertEqual(
             self.parse_skeleton(
@@ -127,11 +124,11 @@ class ReskeletonizerTest(unittest.TestCase):
                 ignore_whitespace=True,
                 normalizer=normalize_python,
             ),
-            "\nx = (2 + <<<3>>>)\n",
+            "\nx = (2 + {{3}})\n",
         )
 
     def deformat_skeleton_and_code_test(self):
-        skeleton_code = "def f(x): # function that does some stuff\n return f (<<<x>>>)"
+        skeleton_code = "def f(x): # function that does some stuff\n return f ({{x}})"
         self.assertEqual(
             self.parse_skeleton(
                 "def f          (x): return f(6)",
@@ -139,5 +136,5 @@ class ReskeletonizerTest(unittest.TestCase):
                 ignore_whitespace=True,
                 normalizer=normalize_python,
             ),
-            "\n\ndef f(x):\n    return f(<<<6>>>)\n",
+            "\n\ndef f(x):\n    return f({{6}})\n",
         )
