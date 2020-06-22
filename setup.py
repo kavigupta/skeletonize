@@ -20,6 +20,6 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.5',
-    install_requires=[]
+    python_requires=">=3.5",
+    install_requires=["cached-property==1.5.1", "attrs==19.3.0", "astunparse==1.6.3"],
 )
