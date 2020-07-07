@@ -63,7 +63,7 @@ class Reskeletonizer:
     def _match_given_text(self, code):
         if not self.ignore_whitespace:
             return re.escape(code)
-        return r"\s+".join(re.escape(word) for word in re.split(r"\s", code))
+        return r"\s+".join(re.escape(word) for word in re.split(r"\s+", code))
 
 
 def normalize_python(code):
