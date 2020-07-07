@@ -21,7 +21,7 @@ class Reskeletonizer:
         normalizer: function that parses and unparses code, to remove extraneous formatting.
             Default is None, or no normalization. If this is used, the returned reskeletonized
             code will correspond to the normalized code rather than the original code.
-            
+
             For this to work, the blanks in the original skeleton must correspond to places an
             identifier could be placed, syntactically. Additionally, any sequence of [a-z]*
             must be a valid identifier for this to work.
@@ -67,7 +67,10 @@ class Reskeletonizer:
 
 
 def normalize_python(code):
-    return astunparse.unparse(ast.parse(code, "<<code>>"))
+    try:
+        return astunparse.unparse(ast.parse(code, "<<code>>"))
+    except SyntaxError:
+        return code
 
 
 class CannotReskeletonizeException(Exception):
