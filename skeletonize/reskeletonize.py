@@ -29,10 +29,12 @@ class Reskeletonizer:
 
     def reskeletonize(self, skeleton: Skeleton, code: str) -> Skeleton:
         if self.normalizer is not None:
-            code = self.normalizer(code)
-            skeleton_code, skeleton_ids = render_with_identifiers(skeleton)
-            skeleton_code = self.normalizer(skeleton_code)
-            skeleton = parse_identifiers(skeleton_code, skeleton_ids)
+            new_code = self.normalizer(code)
+            if new_code is not None:
+                code = new_code
+                skeleton_code, skeleton_ids = render_with_identifiers(skeleton)
+                skeleton_code = self.normalizer(skeleton_code)
+                skeleton = parse_identifiers(skeleton_code, skeleton_ids)
 
         match = self.create_regex(skeleton).match(code)
         if not match:
@@ -68,10 +70,11 @@ class Reskeletonizer:
 
 def normalize_python(code):
     try:
-        return astunparse.unparse(ast.parse(code, "<<code>>"))
+        tree = ast.parse(code, "<<code>>")
     except SyntaxError:
-        return code
+        return None
 
+    return astunparse.unparse(tree)
 
 class CannotReskeletonizeException(Exception):
     pass
