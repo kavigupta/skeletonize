@@ -67,12 +67,34 @@ class Reskeletonizer:
             return re.escape(code)
         return r"\s+".join(re.escape(word) for word in re.split(r"\s+", code))
 
+class RemoveDocstring(ast.NodeTransformer):
+    def visit_Module(self, node):
+        for sub in node.body:
+            super().visit(sub)
+            if not isinstance(sub, ast.Expr):
+                continue
+            if not isinstance(sub.value, ast.Constant):
+                continue
+            if not isinstance(sub.value.value, str):
+                continue
+            sub.value.value = "[ommited docstring]"
+        return node
 
-def normalize_python(code):
+    visit_FunctionDef = visit_AsyncFunctionDef = visit_Module
+
+
+def normalize_python(code, remove_docstrings=True):
+    """
+    Parses and unparses python, while also removing docstrings and module strings
+    and replacing them with '[ommited docstring]'
+    """
     try:
         tree = ast.parse(code, "<<code>>")
     except SyntaxError:
         return None
+
+    if remove_docstrings:
+        tree = RemoveDocstring().visit(tree)
 
     return astunparse.unparse(tree)
 
