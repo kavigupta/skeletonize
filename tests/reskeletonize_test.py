@@ -4,7 +4,6 @@ from skeletonize.parser import SkeletonParser
 from skeletonize.renderer import DisplaySolutionsRenderer
 from skeletonize.reskeletonize import (
     Reskeletonizer,
-    CannotReskeletonizeException,
     normalize_python,
 )
 
@@ -36,22 +35,22 @@ class ReskeletonizerTest(unittest.TestCase):
             self.parse_skeleton("x = lambda y, z: y \n* z", skeleton_code),
             "x = lambda {{y, z}}: {{y \n* z}}",
         )
-        self.assertRaises(
-            CannotReskeletonizeException,
-            lambda: self.parse_skeleton("something utterly unrelated", skeleton_code),
+        self.assertEqual(
+            self.parse_skeleton("something utterly unrelated", skeleton_code),
+            "<<-x = lambda >>{{something}}<<-:>> {{utterly unrelated}}",
         )
         # extra whitespace
-        self.assertRaises(
-            CannotReskeletonizeException,
-            lambda: self.parse_skeleton("x     =    lambda y, z: y * z", skeleton_code),
+        self.assertEqual(
+            self.parse_skeleton("x     =    lambda y, z: y * z", skeleton_code),
+            "x <<+    >>= <<+   >>lambda {{y, z}}: {{y * z}}",
         )
 
         # quotation
         self.assertEqual(self.parse_skeleton(".x.", ".{{between dots}}."), ".{{x}}.")
 
-        self.assertRaises(
-            CannotReskeletonizeException,
-            lambda: self.parse_skeleton(".{{between dots}}.", "axa"),
+        self.assertEqual(
+            self.parse_skeleton(".{{between dots}}.", "axa"),
+            "<<+.{{between dots}}.>><<-axa>>",
         )
 
     def parenthesized_reskeleton_test(self):

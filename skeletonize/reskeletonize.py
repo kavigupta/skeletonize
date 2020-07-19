@@ -6,6 +6,7 @@ import attr
 
 from .renderer import render_with_identifiers, parse_identifiers
 from .skeleton import Skeleton, Blank, Given
+from .align import align_skeleton
 
 
 @attr.s
@@ -36,23 +37,7 @@ class Reskeletonizer:
                 skeleton_code = self.normalizer(skeleton_code)
                 skeleton = parse_identifiers(skeleton_code, skeleton_ids)
 
-        match = self.create_regex(skeleton).match(code)
-        if not match:
-            raise CannotReskeletonizeException
-
-        blanks = match.groups()
-        assert len(blanks) == len(skeleton.segments)
-
-        new_segments = []
-        for segment, content in zip(skeleton.segments, blanks):
-            if isinstance(segment, Blank):
-                new_segments.append(Blank(content))
-            elif isinstance(segment, Given):
-                new_segments.append(Given(content))
-            else:
-                raise AssertionError("Should be unreachable")
-
-        return Skeleton(new_segments)
+        return align_skeleton(skeleton, code, self.ignore_whitespace)
 
     def create_regex(self, skeleton):
         regex_chunks = ["^"]
@@ -66,6 +51,7 @@ class Reskeletonizer:
         if not self.ignore_whitespace:
             return re.escape(code)
         return r"\s+".join(re.escape(word) for word in re.split(r"\s+", code))
+
 
 class RemoveDocstring(ast.NodeTransformer):
     def visit_Module(self, node):
@@ -97,6 +83,3 @@ def normalize_python(code, remove_docstrings=True):
         tree = RemoveDocstring().visit(tree)
 
     return astunparse.unparse(tree)
-
-class CannotReskeletonizeException(Exception):
-    pass

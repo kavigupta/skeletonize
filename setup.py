@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="skeletonize",
-    version="1.2",
+    version="2.0",
     author="Kavi Gupta",
     author_email="skeletonize@kavigupta.org",
     description="Handles skeletonization and deskeletonization of python code.",

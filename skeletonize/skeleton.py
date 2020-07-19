@@ -43,3 +43,27 @@ class Given(Segment):
 
     def matcher_regex(self, quotation):
         return "(" + quotation(self.code) + ")"
+
+
+@attr.s
+class Correction(Segment):
+    code = attr.ib()
+
+    def render(self, renderer: SkeletonRenderer):
+        return renderer.render_correction(self)
+
+    def matcher_regex(self, quotation):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def symbol(self):
+        pass
+
+
+class Insertion(Correction):
+    symbol = "+"
+
+
+class Deletion(Correction):
+    symbol = "-"

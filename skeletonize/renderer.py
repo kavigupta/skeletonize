@@ -18,6 +18,10 @@ class SkeletonRenderer(ABC):
     def render_given(self, given):
         pass
 
+    @abstractmethod
+    def render_correction(self, correction):
+        pass
+
 
 @attr.s
 class UnderscoreBlankRenderer(SkeletonRenderer):
@@ -32,11 +36,19 @@ class UnderscoreBlankRenderer(SkeletonRenderer):
     def render_given(self, given):
         return given.code
 
+    def render_correction(self, correction):
+        raise ValueError(
+            "Cannot render with blanks a skeleton that contains corrections"
+        )
+
 
 @attr.s
 class DisplaySolutionsRenderer(SkeletonRenderer):
     start = attr.ib(default="{{")
     end = attr.ib(default="}}")
+
+    start_correction = attr.ib(default="<<")
+    end_correction = attr.ib(default=">>")
 
     def combine(self, per_segment_outputs):
         return "".join(per_segment_outputs)
@@ -46,6 +58,14 @@ class DisplaySolutionsRenderer(SkeletonRenderer):
 
     def render_given(self, given):
         return given.code
+
+    def render_correction(self, correction):
+        return (
+            self.start_correction
+            + correction.symbol
+            + correction.code
+            + self.end_correction
+        )
 
 
 class IdentifierBlankRenderer(SkeletonRenderer):
@@ -67,6 +87,11 @@ class IdentifierBlankRenderer(SkeletonRenderer):
 
     def render_given(self, given):
         return given.code
+
+    def render_correction(self, correction):
+        raise ValueError(
+            "Cannot render with blanks a skeleton that contains corrections"
+        )
 
 
 def render_with_identifiers(skeleton, identifier_length=30):
