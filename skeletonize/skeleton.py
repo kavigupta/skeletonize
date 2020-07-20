@@ -12,6 +12,9 @@ class Skeleton:
     def render(self, renderer: SkeletonRenderer):
         return renderer.combine([segment.render(renderer) for segment in self.segments])
 
+    def error_free(self):
+        return all(not isinstance(x, Correction) for x in self.segments)
+
 
 class Segment(ABC):
     @abstractmethod
