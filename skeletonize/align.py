@@ -52,13 +52,17 @@ def align_skeleton(skeleton, code, is_whitespace):
 
         segm_char = segm[within_segment_idx] if segm is not None else None
 
-        possibilities = []
         # match?
         if segm_char == code_char:
             s, c = helper_align(segment_idx, within_segment_idx + 1, code_idx + 1)
             new_s = Given(code_char), s
-            possibilities.append((new_s, c))
+            # in theory, this should be added to the possibilites list and compared
+            # to everything else, but this hack speeds up the calculation
+            # considerably, by assuming that we can just correct later.
+            # :shrug emoji:
+            return new_s, c
 
+        possibilities = []
         # insert?
         if code_char is not None:
             s, c = helper_align(segment_idx, within_segment_idx, code_idx + 1)
