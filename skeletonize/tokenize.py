@@ -17,5 +17,4 @@ def tokenize(code):
         else:
             result.append(char)
         last_cat = cat
-    print(result)
     return result
