@@ -59,18 +59,18 @@ def align_skeleton(skeleton, code, is_whitespace):
         if code_char is not None:
             s, c = helper_align(segment_idx, within_segment_idx, code_idx + 1)
             if is_whitespace and code_char.isspace():
-                res = (Given(code_char), s), c
+                res = (Given(code_char), s), c + 0.0001
             else:
-                res = (Insertion(code_char), s), c + 1
+                res = (Insertion(code_char), s), c + len(code_char)
             possibilities.append(res)
 
         # delete
         if segm_char is not None:
             s, c = helper_align(segment_idx, within_segment_idx + 1, code_idx)
             if is_whitespace and segm_char.isspace():
-                res = (Given(segm_char), s), c
+                res = s, c + 0.0001
             else:
-                res = (Deletion(segm_char), s), c + 1
+                res = (Deletion(segm_char), s), c + len(segm_char)
             possibilities.append(res)
 
         return min(possibilities, key=lambda x: x[1])
