@@ -78,6 +78,7 @@ def align_skeleton(skeleton, code, is_whitespace):
             possibilities.append(res)
 
         return min(possibilities, key=lambda x: x[1])
+
     with recursionlimit(10 ** 5):
         s, _ = helper_align(0, 0, 0)
     return Skeleton(consolidate(to_list(s)))
@@ -104,6 +105,7 @@ def consolidate(segments):
         else:
             raise AssertionError("unreachable")
     return result
+
 
 class recursionlimit:
     # from https://stackoverflow.com/a/50120316/1549476
