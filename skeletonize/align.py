@@ -1,3 +1,4 @@
+import sys
 from functools import lru_cache
 
 from .skeleton import Skeleton, Given, Insertion, Deletion, Blank, Correction
@@ -73,8 +74,8 @@ def align_skeleton(skeleton, code, is_whitespace):
             possibilities.append(res)
 
         return min(possibilities, key=lambda x: x[1])
-
-    s, _ = helper_align(0, 0, 0)
+    with recursionlimit(10 ** 5):
+        s, _ = helper_align(0, 0, 0)
     return Skeleton(consolidate(to_list(s)))
 
 
@@ -99,3 +100,15 @@ def consolidate(segments):
         else:
             raise AssertionError("unreachable")
     return result
+
+class recursionlimit:
+    # from https://stackoverflow.com/a/50120316/1549476
+    def __init__(self, limit):
+        self.limit = limit
+        self.old_limit = sys.getrecursionlimit()
+
+    def __enter__(self):
+        sys.setrecursionlimit(self.limit)
+
+    def __exit__(self, type, value, tb):
+        sys.setrecursionlimit(self.old_limit)
