@@ -1,6 +1,7 @@
 import sys
 from functools import lru_cache
 
+from .tokenize import tokenize
 from .skeleton import Skeleton, Given, Insertion, Deletion, Blank, Correction
 
 
@@ -10,7 +11,10 @@ def align_skeleton(skeleton, code, is_whitespace):
         the edit distance (just insert/delete) of all the Given portions of
         the skeleton with that of the code.
     """
-    segments = [x.code if isinstance(x, Given) else Blank for x in skeleton.segments]
+    code = tokenize(code)
+    segments = [
+        tokenize(x.code) if isinstance(x, Given) else Blank for x in skeleton.segments
+    ]
 
     @lru_cache(None)
     def helper_align(segment_idx, within_segment_idx, code_idx):
