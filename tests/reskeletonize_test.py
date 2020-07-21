@@ -32,8 +32,8 @@ class ReskeletonizerTest(unittest.TestCase):
             "x = lambda {{y, z}}: {{y * z}}",
         )
         self.assertEqual(
-            self.parse_skeleton("x = lambda y, z: y \n* z", skeleton_code),
-            "x = lambda {{y, z}}: {{y \n* z}}",
+            repr(self.parse_skeleton("x = lambda y, z: y \n* z", skeleton_code)),
+            repr("x = lambda {{y, z: y }}<<+\n*>><<-:>> {{z}}"),
         )
         self.assertEqual(
             self.parse_skeleton("something utterly unrelated", skeleton_code),
@@ -80,10 +80,10 @@ class ReskeletonizerTest(unittest.TestCase):
             "x     =    lambda {{y, z}}: {{y * z}}",
         )
         self.assertEqual(
-            self.parse_skeleton(
+            repr(self.parse_skeleton(
                 "x     =    lambda y, z: y \n* z", skeleton_code, ignore_whitespace=True
-            ),
-            "x     =    lambda {{y, z}}: {{y \n* z}}",
+            )),
+            repr("x     =    lambda {{y, z: y }}\n<<-:>>{{* z}}"),
         )
         self.assertEqual(
             self.parse_skeleton(
