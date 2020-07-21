@@ -54,16 +54,16 @@ class Reskeletonizer:
 
 
 class RemoveDocstring(ast.NodeTransformer):
+    replacement = "[ommited docstring]"
     def visit_Module(self, node):
         for sub in node.body:
             super().visit(sub)
             if not isinstance(sub, ast.Expr):
                 continue
-            if not isinstance(sub.value, ast.Constant):
-                continue
-            if not isinstance(sub.value.value, str):
-                continue
-            sub.value.value = "[ommited docstring]"
+            if isinstance(sub.value, ast.Constant) and isinstance(sub.value.value, str):
+                sub.value.value = self.replacement
+            elif isinstance(sub.value, ast.Str):
+                sub.value.s = self.replacement
         return node
 
     visit_FunctionDef = visit_AsyncFunctionDef = visit_Module
