@@ -40,7 +40,7 @@ def align_skeleton(skeleton, code, is_whitespace):
             possibilities.append(helper_align(segment_idx + 1, 0, code_idx))
 
             # use blank?
-            if code_idx < len(code):
+            if code_char is not None and code_char != "\n":
                 s, c = helper_align(segment_idx, within_segment_idx, code_idx + 1)
                 new_s = Blank(code_char), s
                 possibilities.append((new_s, c))
