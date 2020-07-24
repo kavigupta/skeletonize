@@ -60,10 +60,14 @@ class RemoveDocstring(ast.NodeTransformer):
             super().visit(sub)
             if not isinstance(sub, ast.Expr):
                 continue
-            if isinstance(sub.value, ast.Constant) and isinstance(sub.value.value, str):
-                sub.value.value = self.replacement
-            elif isinstance(sub.value, ast.Str):
+            if hasattr(ast, "Constant"):
+                # python3.5 doesn't have this and we support it.
+                if isinstance(sub.value, ast.Constant) and isinstance(sub.value.value, str):
+                    sub.value.value = self.replacement
+                    continue
+            if isinstance(sub.value, ast.Str):
                 sub.value.s = self.replacement
+                continue
         return node
 
     visit_FunctionDef = visit_AsyncFunctionDef = visit_Module
