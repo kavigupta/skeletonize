@@ -70,7 +70,7 @@ class RemoveDocstring(ast.NodeTransformer):
                 continue
         return node
 
-    visit_FunctionDef = visit_AsyncFunctionDef = visit_Module
+    visit_ClassDef = visit_FunctionDef = visit_AsyncFunctionDef = visit_Module
 
 
 def normalize_python(code, remove_docstrings=True):
