@@ -5,7 +5,7 @@ from .tokenize import tokenize
 from .skeleton import Skeleton, Given, Insertion, Deletion, Blank, Correction
 
 
-def align_skeleton(skeleton, code, is_whitespace):
+def align_skeleton(skeleton, code, is_whitespace, allow_newline_blanks):
     """
     Aligns the given skeleton with the given code. This algorithm minimizes
         the edit distance (just insert/delete) of all the Given portions of
@@ -40,7 +40,7 @@ def align_skeleton(skeleton, code, is_whitespace):
             possibilities.append(helper_align(segment_idx + 1, 0, code_idx))
 
             # use blank?
-            if code_char is not None and code_char != "\n":
+            if code_char is not None and (allow_newline_blanks or code_char != "\n"):
                 s, c = helper_align(segment_idx, within_segment_idx, code_idx + 1)
                 new_s = Blank(code_char), s
                 possibilities.append((new_s, c))

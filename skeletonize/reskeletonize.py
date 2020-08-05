@@ -12,6 +12,7 @@ from .align import align_skeleton
 @attr.s
 class Reskeletonizer:
     ignore_whitespace = attr.ib(default=False)
+    allow_newline_blanks = attr.ib(default=False)
     normalizer = attr.ib(default=None)
     """
     Reskeletonizer that uses character-level matching to match given portions the skeleton
@@ -37,7 +38,9 @@ class Reskeletonizer:
                 skeleton_code = self.normalizer(skeleton_code)
                 skeleton = parse_identifiers(skeleton_code, skeleton_ids)
 
-        return align_skeleton(skeleton, code, self.ignore_whitespace)
+        return align_skeleton(
+            skeleton, code, self.ignore_whitespace, self.allow_newline_blanks
+        )
 
     def create_regex(self, skeleton):
         regex_chunks = ["^"]
