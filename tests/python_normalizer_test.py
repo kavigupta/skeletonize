@@ -3,6 +3,7 @@ from textwrap import dedent
 
 from skeletonize.reskeletonize import normalize_python
 
+
 class NormalizerTest(unittest.TestCase):
     def test_module_docstring(self):
         input = dedent(

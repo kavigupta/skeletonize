@@ -55,6 +55,7 @@ class Reskeletonizer:
 
 class RemoveDocstring(ast.NodeTransformer):
     replacement = "[ommited docstring]"
+
     def visit_Module(self, node):
         for sub in node.body:
             super().visit(sub)
@@ -62,7 +63,9 @@ class RemoveDocstring(ast.NodeTransformer):
                 continue
             if hasattr(ast, "Constant"):
                 # python3.5 doesn't have this and we support it.
-                if isinstance(sub.value, ast.Constant) and isinstance(sub.value.value, str):
+                if isinstance(sub.value, ast.Constant) and isinstance(
+                    sub.value.value, str
+                ):
                     sub.value.value = self.replacement
                     continue
             if isinstance(sub.value, ast.Str):

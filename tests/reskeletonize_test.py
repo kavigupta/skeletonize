@@ -80,9 +80,13 @@ class ReskeletonizerTest(unittest.TestCase):
             "x     =    lambda {{y, z}}: {{y * z}}",
         )
         self.assertEqual(
-            repr(self.parse_skeleton(
-                "x     =    lambda y, z: y \n* z", skeleton_code, ignore_whitespace=True
-            )),
+            repr(
+                self.parse_skeleton(
+                    "x     =    lambda y, z: y \n* z",
+                    skeleton_code,
+                    ignore_whitespace=True,
+                )
+            ),
             repr("x     =    lambda {{y, z: y }}\n<<-:>>{{* z}}"),
         )
         self.assertEqual(
