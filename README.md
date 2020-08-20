@@ -10,10 +10,10 @@ Skeletonization works by taking in a piece of code with "skeleton markers" as so
 
 ```python
 def factorial(x):
-    if <<<x == 0>>>:
-        return <<<1>>>
+    if {{x == 0}}:
+        return {{1}}
     else:
-        return <<<x>>> * <<<factorial(x - 1)>>>
+        return {{x}} * {{factorial(x - 1)}}
 ```
 
 and converting it into either a skeleton
@@ -42,10 +42,10 @@ Reskeletonization works by taking a skeleton:
 
 ```python
 def factorial(x):
-    if <<<x == 0>>>:
-        return <<<1>>>
+    if {{x == 0}}:
+        return {{1}}
     else:
-        return <<<x>>> * <<<factorial(x - 1)>>>
+        return {{x}} * {{factorial(x - 1)}}
 ```
 
 and a student solution:
@@ -62,8 +62,8 @@ and produces a reskeletonized program
 
 ```python
 def factorial(x):
-    if <<<not x>>>:
-        return <<<1>>>
+    if {{not x}}:
+        return {{1}}
     else:
-        return <<<x>>> * <<<factorial(x)>>>
+        return {{x}} * {{factorial(x)}}
 ```
